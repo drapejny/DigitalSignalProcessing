@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             int sampleRate = 44100;        // Samples per second
-            double duration = 5.0;        // Seconds
+            double duration = 3.0;        // Seconds
 
             // Calculate the number of frames required for specified duration
             long numFrames = (long) (duration * sampleRate);
@@ -34,13 +34,15 @@ public class Main {
                 // Fill the buffer, one tone per channel
                 for (int s = 0; s < toWrite; s++, frameCounter++) {
                     // Sin wave
-                    buffer[0][s] = A * Math.sin(2.0 * Math.PI * f * frameCounter / sampleRate);
+                    //buffer[0][s] = A * Math.sin(2.0 * Math.PI * f * frameCounter / sampleRate);
                     // Square wave
                     //buffer[0][s] = ((((double) frameCounter / sampleRate) % T) / T) < dc ? A : -A;
                     // Triangle wave
                     //buffer[0][s] = 2 * A / Math.PI / Math.sin(Math.sin(2 * Math.PI * f * frameCounter / sampleRate));
                     // Sawtooth wave
                     //buffer[0][s] = -2 * A / Math.PI / Math.tan(1 / Math.tan(Math.PI * f * frameCounter / sampleRate));
+                    // Random wave
+                    //buffer[0][s] = A * Math.random() * 2 - 1;
                 }
 
                 // Write the buffer

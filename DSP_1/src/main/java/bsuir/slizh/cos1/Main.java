@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
 
-import static bsuir.slizh.cos1.signal.Waves.sinWave;
-import static bsuir.slizh.cos1.signal.Waves.squareWave;
+import static bsuir.slizh.cos1.signal.Waves.*;
 
 public class Main {
 
@@ -84,13 +83,11 @@ public class Main {
             // Fill the buffer, one tone per channel
             for (int s = 0; s < toWrite; s++, frameCounter++) {
                 switch (signal) {
-                    case "1" -> buffer[0][s] = sinWave(A, f, frameCounter, sampleRate);
-                    case "2" -> buffer[0][s] = squareWave(A, f, frameCounter, sampleRate, dc);
-                    case "3" ->
-                            buffer[0][s] = 2 * A / Math.PI / Math.sin(Math.sin(2 * Math.PI * f * frameCounter / sampleRate));
-                    case "4" ->
-                            buffer[0][s] = -2 * A / Math.PI / Math.tan(1 / Math.tan(Math.PI * f * frameCounter / sampleRate));
-                    case "5" -> buffer[0][s] = A * Math.random() * 2 - 1;
+                    case "1" -> buffer[0][s] = sinWave(A, f, 0, frameCounter, sampleRate);
+                    case "2" -> buffer[0][s] = squareWave(A, f, 0, frameCounter, sampleRate, dc);
+                    case "3" -> buffer[0][s] = triangleWave(A, f, 0, frameCounter, sampleRate);
+                    case "4" -> buffer[0][s] = sawtoothWave(A, f, 0, frameCounter, sampleRate);
+                    case "5" -> buffer[0][s] = randomWave(A);
                 }
             }
 
@@ -187,22 +184,18 @@ public class Main {
             // Fill the buffer, one tone per channel
             for (int s = 0; s < toWrite; s++, frameCounter++) {
                 switch (signal1) {
-                    case "1" -> buffer[0][s] = sinWave(A1, f1, frameCounter, sampleRate);
-                    case "2" -> buffer[0][s] = squareWave(A1, f1, frameCounter, sampleRate, dc1);
-                    case "3" ->
-                            buffer[0][s] = 2 * A1 / Math.PI / Math.sin(Math.sin(2 * Math.PI * f1 * frameCounter / sampleRate));
-                    case "4" ->
-                            buffer[0][s] = -2 * A1 / Math.PI / Math.tan(1 / Math.tan(Math.PI * f1 * frameCounter / sampleRate));
-                    case "5" -> buffer[0][s] = A1 * Math.random() * 2 - 1;
+                    case "1" -> buffer[0][s] = sinWave(A1, f1, 0, frameCounter, sampleRate);
+                    case "2" -> buffer[0][s] = squareWave(A1, f1, 0, frameCounter, sampleRate, dc1);
+                    case "3" -> buffer[0][s] = triangleWave(A1, f1, 0, frameCounter, sampleRate);
+                    case "4" -> buffer[0][s] = sawtoothWave(A1, f1, 0, frameCounter, sampleRate);
+                    case "5" -> buffer[0][s] = randomWave(A1);
                 }
                 switch (signal2) {
-                    case "1" -> buffer[0][s] += sinWave(A2, f2, frameCounter, sampleRate);
-                    case "2" -> buffer[0][s] += squareWave(A2, f2, frameCounter, sampleRate, dc2);
-                    case "3" ->
-                            buffer[0][s] += 2 * A2 / Math.PI / Math.sin(Math.sin(2 * Math.PI * f2 * frameCounter / sampleRate));
-                    case "4" ->
-                            buffer[0][s] += -2 * A2 / Math.PI / Math.tan(1 / Math.tan(Math.PI * f2 * frameCounter / sampleRate));
-                    case "5" -> buffer[0][s] += A2 * Math.random() * 2 - 1;
+                    case "1" -> buffer[0][s] += sinWave(A2, f2, 0, frameCounter, sampleRate);
+                    case "2" -> buffer[0][s] += squareWave(A2, f2, 0, frameCounter, sampleRate, dc2);
+                    case "3" -> buffer[0][s] += triangleWave(A2, f2, 0, frameCounter, sampleRate);
+                    case "4" -> buffer[0][s] += sawtoothWave(A2, f2, 0, frameCounter, sampleRate);
+                    case "5" -> buffer[0][s] += randomWave(A2);
                 }
             }
             // Write the buffer
@@ -214,6 +207,11 @@ public class Main {
     }
 
     private static void uiModulation() throws IOException, WavFileException {
+
+        System.out.println("1. Амплитудная" +
+                "2. Частотная");
+        String modulation = scanner.nextLine();
+
         // Calculate the number of frames required for specified duration
         long numFrames = (long) (duration * sampleRate);
 
@@ -288,6 +286,7 @@ public class Main {
         // Initialise a local frame counter
         long frameCounter = 0;
 
+        double sum = 0;
         // Loop until all frames written
         while (frameCounter < numFrames) {
             // Determine how many frames to write, up to a maximum of the buffer size
@@ -298,29 +297,58 @@ public class Main {
             for (int s = 0; s < toWrite; s++, frameCounter++) {
                 double um = 0;
                 double uc = 0;
-                switch (signal1) {
-                    case "1" -> um = sinWave(A1, f1, frameCounter, sampleRate);
-                    case "2" -> um = squareWave(A1, f1, frameCounter, sampleRate, dc1);
-                    case "3" ->
-                            um = 2 * A1 / Math.PI / Math.sin(Math.sin(2 * Math.PI * f1 * frameCounter / sampleRate));
-                    case "4" ->
-                            um = -2 * A1 / Math.PI / Math.tan(1 / Math.tan(Math.PI * f1 * frameCounter / sampleRate));
-                    case "5" -> um = A1 * Math.random() * 2 - 1;
-                }
-                System.out.println(um);
-                switch (signal2) {
+
+                switch (modulation) {
                     case "1" -> {
-                        uc = sinWave(A2, f2 * ((um + A1) / (2 * A1)), frameCounter, sampleRate);
+                        switch (signal1) {
+                            case "1" -> um = sinWave(A1, f1, 0, frameCounter, sampleRate);
+                            case "2" -> um = squareWave(A1, f1, 0, frameCounter, sampleRate, dc1);
+                            case "3" -> um = triangleWave(A1, f1, 0, frameCounter, sampleRate);
+                            case "4" -> um = sawtoothWave(A1, f1, 0, frameCounter, sampleRate);
+                            case "5" -> um = randomWave(A1);
+                        }
+                        switch (signal2) {
+                            case "1" -> {
+                                uc = sinWave(A2, f2, Math.PI / 2, frameCounter, sampleRate);
+                            }
+                            case "2" -> uc = squareWave(A2, f2, Math.PI / 2, frameCounter, sampleRate, dc2);
+                            case "3" -> uc = triangleWave(A2, f2, Math.PI / 2, frameCounter, sampleRate);
+                            case "4" -> uc = sawtoothWave(A2, f2, Math.PI / 2, frameCounter, sampleRate);
+                            case "5" -> uc = randomWave(A2);
+                        }
+                        double uam = uc * (1 + um / A1);
+                        buffer[0][s] = uam;
                     }
-                    case "2" -> uc = squareWave(A2, f2 * ((um + A1) / (2 * A1)), frameCounter, sampleRate, dc2);
-                    case "3" ->
-                            uc = 2 * A2 / Math.PI / Math.sin(Math.sin(2 * Math.PI * f2 * ((um + A1) / (2 * A1)) * frameCounter / sampleRate));
-                    case "4" ->
-                            uc = -2 * A2 / Math.PI / Math.tan(1 / Math.tan(Math.PI * f2 * ((um + A1) / (2 * A1)) * frameCounter / sampleRate));
-                    case "5" -> uc = A2 * Math.random() * 2 - 1;
+                    case "2" -> {
+                        switch (signal1) {
+                            case "1" -> um = sinWave(A1, f1, 0, frameCounter, sampleRate);
+                            case "2" -> um = squareWave(A1, f1, 0, frameCounter, sampleRate, dc1);
+                            case "3" -> um = triangleWave(A1, f1, 0, frameCounter, sampleRate);
+                            case "4" -> um = sawtoothWave(A1, f1, 0, frameCounter, sampleRate);
+                            case "5" -> um = A1 * Math.random() * 2 - 1;
+                        }
+                        switch (signal2) {
+                            case "1" -> {
+                                sum += 2 * Math.PI * f2 * (1 + um) / sampleRate;
+                                uc = A2 * Math.sin(sum);
+                                //uc = sinWave(A2, f2 * ((um + A1) / (2 * A1)), Math.PI / 2, frameCounter, sampleRate);
+                            }
+                            case "2" ->{
+                                sum += f2 * (1 + um) / sampleRate;
+                                uc = ((2.0 * Math.PI * sum) % (2 * Math.PI)) / (2 * Math.PI) < dc2 ? A2 : -A2;
+                                //uc = squareWave(A2, f2 * ((um + A1) / (2 * A1)), Math.PI / 2, frameCounter, sampleRate, dc2);
+                            }
+
+                            case "3" ->
+                                    uc = triangleWave(A2, f2 * ((um + A1) / (2 * A1)), Math.PI / 2, frameCounter, sampleRate);
+                            case "4" ->
+                                    uc = sawtoothWave(A2, f2 * ((um + A1) / (2 * A1)), Math.PI / 2, frameCounter, sampleRate);
+                            case "5" -> uc = randomWave(A2);
+                        }
+                        double uam = uc;
+                        buffer[0][s] = uam;
+                    }
                 }
-                double uam = uc;
-                buffer[0][s] = uam;
             }
             // Write the buffer
             wavFile.writeFrames(buffer, toWrite);

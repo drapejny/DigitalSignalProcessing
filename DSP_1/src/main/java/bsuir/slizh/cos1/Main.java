@@ -339,6 +339,7 @@ public class Main {
                                 //uc = squareWave(A2, f2 * ((um + A1) / (2 * A1)), Math.PI / 2, frameCounter, sampleRate, dc2);
                             }
 
+                            //// TODO: 25.10.2022 надо доделать
                             case "3" ->
                                     uc = triangleWave(A2, f2 * ((um + A1) / (2 * A1)), Math.PI / 2, frameCounter, sampleRate);
                             case "4" ->

@@ -38,6 +38,7 @@ public class Main {
         double[] A = new double[N / 2];
         double[] fi = new double[N / 2];
 
+        long startTime = System.nanoTime();
         for (int j = 0; j < N / 2; j++) {
             double sumC = 0.0f;
             double sumS = 0.0f;
@@ -50,6 +51,8 @@ public class Main {
             A[j] = Math.sqrt(Math.pow(Ac[j], 2) + Math.pow(As[j], 2));
             fi[j] = Math.atan(As[j] / Ac[j]);
         }
+
+        System.out.println(System.nanoTime() - startTime);
 
         double[] regeneratedSignal = new double[N];
 
@@ -142,8 +145,12 @@ public class Main {
 
         //------------------------------------ 3 ------------------------------------
 
+
         // Fast Fourier
         polyharmonicSignal = generatePolyharmonicSignal(N);
+
+
+        startTime = System.nanoTime();
         DoublePair[] coefs = fourierParams(polyharmonicSignal);
         A = new double[N];
         fi = new double[N];
@@ -156,6 +163,8 @@ public class Main {
                 fi[i] = 0;
             }
         }
+
+        System.out.println(System.nanoTime() - startTime);
 
 
         regeneratedSignal = new double[N];
@@ -279,7 +288,7 @@ public class Main {
     private static double[] generateSignal() {
         double[] signal = new double[N];
         for (int i = 0; i < N; i++) {
-            signal[i] = 10 * Math.cos(2 * Math.PI * i / N + Math.PI / 3);
+            signal[i] = 10 * Math.cos(2 * Math.PI * i / N - Math.PI / 4);
         }
         return signal;
     }
@@ -287,11 +296,11 @@ public class Main {
     private static double[] generatePolyharmonicSignal(int n) {
         double[] signal = new double[n];
         Random random = new Random();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 1; i <= 30; i++) {
             double A = As[Math.abs(random.nextInt()) % As.length];
             double fi = fis[Math.abs(random.nextInt()) % fis.length];
             for (int j = 0; j < n; j++) {
-                signal[j] += A * Math.cos(2 * Math.PI * j * i / n - fi);
+                signal[j] += A * Math.cos(2 * Math.PI * 2* j * i / n - fi);
             }
         }
         return signal;

@@ -30,18 +30,33 @@ public class BoxBlur implements Blur {
 
                     int pixelNum = 0;
 
-                    int startI = Math.max(x - radius, 0);
-                    int endI = x + radius >= width ? width - 1 : x + radius;
-                    int startJ = Math.max(y - radius, 0);
-                    int endJ = y + radius >= height ? height - 1 : y + radius;
-                    for (int i = startI; i <= endI; i++) {
-                        for (int j = startJ; j <= endJ; j++) {
-                            sumRed += (sourceImage.getRGB(i, j) & 0xff0000) >> 16;
-                            sumGreen += (sourceImage.getRGB(i, j) & 0xff00) >> 8;
-                            sumBlue += sourceImage.getRGB(i, j) & 0xff;
-                            pixelNum ++;
+                    for (int i = 0; i < windowSize; i++) {
+                        if (y - radius + i < 0 || y - radius + i >= height) {
+                            continue;
+                        }
+                        for (int j = 0; j < windowSize; j++) {
+                            if (x - radius + j < 0 || x - radius + j >= width) {
+                                continue;
+                            }
+                            sumRed += (sourceImage.getRGB(x - radius + j, y - radius + i) & 0xff0000) >> 16;
+                            sumGreen += (sourceImage.getRGB(x - radius + j, y - radius + i) & 0xff00) >> 8;
+                            sumBlue += sourceImage.getRGB(x - radius + j, y - radius + i) & 0xff;
+                            pixelNum++;
                         }
                     }
+
+//                    int startI = Math.max(y - radius, 0);
+//                    int endI = y + radius >= height ? height - 1 : y + radius;
+//                    int startJ = Math.max(x - radius, 0);
+//                    int endJ = x + radius >= width ? width - 1 : x + radius;
+//                    for (int i = startI; i <= endI; i++) {
+//                        for (int j = startJ; j <= endJ; j++) {
+//                            sumRed += (sourceImage.getRGB(j, i) & 0xff0000) >> 16;
+//                            sumGreen += (sourceImage.getRGB(j, i) & 0xff00) >> 8;
+//                            sumBlue += sourceImage.getRGB(j, i) & 0xff;
+//                            pixelNum++;
+//                        }
+//                    }
 
                     Color color = new Color(sumRed / pixelNum, sumGreen / pixelNum, sumBlue / pixelNum);
 

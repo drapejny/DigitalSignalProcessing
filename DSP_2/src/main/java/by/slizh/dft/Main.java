@@ -300,7 +300,7 @@ public class Main {
             double A = As[Math.abs(random.nextInt()) % As.length];
             double fi = fis[Math.abs(random.nextInt()) % fis.length];
             for (int j = 0; j < n; j++) {
-                signal[j] += A * Math.cos(2 * Math.PI * 2* j * i / n - fi);
+                signal[j] += A * Math.cos(2 * Math.PI * j * i / n - fi);
             }
         }
         return signal;
